@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  password  String?
+  googleId  String?  @unique
+  picture   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accounts     Account[]
+  transactions Transaction[]
+  categories   Category[]
+  tags         Tag[]
+  plans        Plan[]
+}
+
+model Account {
+  id        String   @id @default(uuid())
+  name      String
+  type      String // Ex: 'carteira', 'banco', 'cartão'
+  balance   Float    @default(0)
+  color     String?
+  userId    String
+  createdAt DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+}
+
+model Category {
+  id        String       @id @default(uuid())
+  name      String
+  type      CategoryType
+  color     String?
+  userId    String
+  createdAt DateTime     @default(now())
+
+  user         User          @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String
+  color     String?
+  userId    String
+  createdAt DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+}
+
+model Transaction {
+  id          String       @id @default(uuid())
+  description String?
+  amount      Float
+  date        DateTime
+  type        CategoryType
+  userId      String
+  accountId   String
+  categoryId  String
+  createdAt   DateTime     @default(now())
+
+  user     User     @relation(fields: [userId], references: [id])
+  account  Account  @relation(fields: [accountId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+  tags     Tag[]
+}
+
+model Plan {
+  id          String   @id @default(uuid())
+  name        String
+  totalAmount Float
+  startDate   DateTime
+  endDate     DateTime
+  userId      String
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
