@@ -12,4 +12,12 @@ export class CreateUserDto {
   @IsString()
   @MinLength(6)
   password?: string;
+
+  @IsOptional()
+  @IsString()
+  picture?: string;
+
+  @IsOptional()
+  @IsString()
+  googleId?: string;
 }
